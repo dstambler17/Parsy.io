@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<head>
+    <link href="parsy_io.css" rel="stylesheet"/>
+    <link rel="shortcut icon" type="image/x-icon" href="ParsyioCal.ico"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!---<script type="text/javascript" src="scroll.js"></script>--->
+    <script src="https://cdn.jsdelivr.net/gh/cferdinandi/smooth-scroll@15.0.0/dist/smooth-scroll.polyfills.min.js"></script>
+    <script>
+        var scroll = new SmoothScroll('a[href*="#"]', {
+            speed: 500,
+            speedAsDuration: true
+        });
+
+        window.onscroll = function() {
+            var nav = document.getElementsByClassName("navbar")[0];
+            var foot = document.getElementsByClassName("footer")[0];
+            var imgBlack = document.getElementsByClassName("black-io")[0];
+            var imgWhite = document.getElementsByClassName("white-io")[0];
+            if (window.pageYOffset > 150) {
+                nav.classList.add("navbar-add");
+                foot.classList.add("footer-add");
+                imgBlack.style.display = "none";
+                imgWhite.style.display = "block";
+            }
+            else {
+                nav.classList.remove("navbar-add");
+                foot.classList.remove("footer-add");
+                imgWhite.style.display = "none";
+                imgBlack.style.display = "block";
+            }
+        }
+
+    </script>
+</head>
+<div class="container">
+    <title>Parsy.io</title>
+    <nav class="navbar" class="default-black">
+        <div id="nav-logo">
+            <a href="#home"><img id="tiny" class="black-io" src="ParsyioLogo.png"><img class="white-io" style="display:none;" id="tiny" src="ParsyioLogoAlt.png"></a>
+        </div>
+        <ul>
+            <li><a href="#contact">Keep Me Informed</a></li>
+            <li><a href="#about">About</a></li>
+            <!---<li><a href="#home">Home</a></li>--->
+        </ul>
+    </nav>
+    <section id="home">
+        <!--<video autoplay muted loop id="video">
+            <source src="temp back.mp4" type="video/mp4">
+        </video>-->
+        <div class="content">
+            <img src="ParsyioLogo.png"/>
+            <h2>Simple Solutions for Smart Students</h2>
+            <br> <!--Delete this br when you release officially -->
+            Parsing Feature Coming Soon
+            <br>
+            <button onclick="window.location.href='https://jhu.parsy.io'">Test our App</button>
+        </div>
+        <!---logo, tagline, login, demo back--->
+    </section>
+    <section id="about">
+        <h1>About</h1>
+        <br/>
+        <p>Hey there! We're a small team of JHU alumni and students,
+          and we develop technical solutions that make life better for students
+          by simplifying the most tedious processes of your college career.
+          Each semester, we were stuck reading through syllabi and scheduling all of our assignments, midterms,
+          and office hours on a week by week basis.
+          We've all had homework deadlines sneak up on us, and have gotten blindsided by exams and we figured - why not automate the entire process?
+        <br/>
+        <br/>
+          Parsy takes your syllabi and automatically schedules all of your assignments, exams, office hours and more for you
+          throughout the entire year in an easy to read and easy to customize calendar.
+          One click and you're done! In addition we will soon be launching
+          our parsing on demand tool; if we don't have your class available already,
+          you can submit the syllabi for it on the spot, and Parsy will automatically schedule it
+          just like it would if it were in our database.
+          Furthermore, it will be added to our database so that everyone else can use it as well.
+          But in the meantime feel free to test out our app for the select classes that we currently have in our database!
+      </p>
+    </section>
+    <section id="contact">
+        <h1 style="color:black">Keep me informed</h1>
+        <div style="font-size: 14px; margin-top: 5px; color: black;">Subscribe to our email list to stay up to date with our releases and latest features</div>
+        <br>
+        <div id="signup">
+            <div id="alert-good" class="success-alert">Thanks! We'll keep you posted</div>
+            <div id="alert-err" class="error-alert">Please make sure to fill out both fields</div>
+            <form id="subForm" style="margin-top:7px;">
+                <input type="text" placeholder="Name" id="name" maxlength="30">
+                <input type="email" placeholder="Email" id="email" maxlength="30">
+                <button id="form-button">Submit</button>
+            </form>
+          </div>
+    </section>
+
+    <script type="text/javascript">
+      //function to submit form
+      function handleErrors(response) {
+        if (!response.ok) {
+          throw Error(response.statusText);
+        }
+        return response;
+      }
+
+
+      const submitForm = (e) => {
+        e.preventDefault();
+        const name_input = document.getElementById("name");
+        const name = name_input.value;
+        const email_input = document.getElementById("email");
+        const email = email_input.value;
+
+        const body = { "name" : name, "email" : email};
+        fetch('https://api.parsy.io/' + 'user/newSubscriber', {
+        method: 'POST',
+        body: JSON.stringify(body),
+        headers:{
+          'Content-Type': 'application/json'
+        }
+      }).then(handleErrors).then(data => {
+          console.log("YAY!")
+          document.getElementById('alert-err').style.display='none';
+          document.getElementById('alert-good').style.display = "block";
+          name_input.value = ''
+          email_input.value = ''
+          setTimeout(function () {
+            document.getElementById('alert-good').style.display='none';
+          }, 5000);
+
+        }).catch(error => {
+          document.getElementById('alert-good').style.display='none';
+          console.error('Error:', error);
+          console.log(error.toString().toLowerCase())
+          const err_msg = error.toString().toLowerCase()
+          if (err_msg === 'error: bad request') {
+            document.getElementById('alert-err').innerHTML = "You already submitted that email";
+          } else {
+            document.getElementById('alert-err').innerHTML = "Please make sure to fill out both fields";
+          }
+          document.getElementById('alert-err').style.display = "block";
+          setTimeout(function () {
+            document.getElementById('alert-err').style.display='none';
+          }, 5000);
+        });
+      }
+
+      //Get form and call the function
+      const form = document.getElementById("subForm");
+      form.addEventListener("submit", submitForm, true);
+    </script>
+
+    <footer class="footer">
+        <!---potentially add mailto tag--->
+        <div id="copyright">
+            <p>&copy; 2019 Parsy.io</p>
+        </div>
+        <div id="icon-links">
+          <!--  <a href="" title="Facebook Page Coming Soon">
+                <i class="fa fa-facebook fa-lg" aria-hidden="true"></i>
+            </a>-->
+            <a href="mailto:contact.parsy.io@gmail.com">
+                <i class="fa fa-envelope fa-lg" aria-hidden="true"></i>
+            </a>
+        </div>
+    </footer>
+</div>
