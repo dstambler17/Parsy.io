@@ -85,6 +85,7 @@ class Slot(db.Model):
     type = db.Column(db.String(40), nullable=False) #Assignment, Exam, ClassTime, HelpSession
     sub_type = db.Column(db.String(40), nullable=False) #I.E prof, TA, learning den, Midterm, Final, Quiz, Homework, Lecture, section, lab
     is_weekly = db.Column(db.Boolean, nullable=False) #True for ClassTime/HelpSession
+    course = db.Column(db.Integer, db.ForeignKey("courseitem.courseuuid"), nullable=False)
     time = db.Column(db.String(200)) #Either something like 'Monday Mar 11 1:00pm-2:00pm' or 'Monday 3:00pm-5:00pm' for weekly
     location = db.Column(db.String(200))
 

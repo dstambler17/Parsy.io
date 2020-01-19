@@ -53,7 +53,7 @@ class SlotUtils:
             time = item["time"]
             location = item["location"]
             ObjectChecks.check_contains_slot(slot_type, subtype, course_uuid, time, location)
-            slot = Slot(course=course_uuid, is_weekly=is_weekly, sub_type = subtype, type=type, time=time, location=location)
+            slot = Slot(course=course_uuid, is_weekly=is_weekly, sub_type = subtype, type=slot_type, time=time, location=location)
             res["added"].append(_asdict(slot))
             db.session.add(slot)
         db.session.commit()

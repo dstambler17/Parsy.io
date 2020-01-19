@@ -179,7 +179,7 @@ class DbCourseitemUtils(object):
             course['exam'] = [_asdict(exam) for exam in exams]
             course['class_meeting'] = [_asdict(meeting) for meeting in classMeetings]
             course['assignment'] = [_asdict(assignment) for assignment in assignments]
-        res['originalContent'] = getOriginalContent(res['content'])
+        #res['originalContent'] = getOriginalContent(res['content'])
         return res
 
     def delete_cal(cal_id):
@@ -224,6 +224,7 @@ class DbCourseitemUtils(object):
 
     def add_helpTime(cal_ID, courseID):
         cal = check_cal(cal_ID)
+        
         res_OH = getOHData(courseID)
         res_exam = getExamData(courseID)
         res_assignment = getAssignmentData(courseID)
@@ -232,6 +233,7 @@ class DbCourseitemUtils(object):
         course_Name = res_OH['name']
         check_contains_course(cal_ID, course_Name)
         course = Courseitem(courseID=res_OH['id'], courseName=res_OH['name'], calender=cal_ID, professor=res_OH['prof'])
+        print('got course')
         db.session.add(course)
         db.session.flush()
         courseid = course.courseuuid
@@ -240,16 +242,16 @@ class DbCourseitemUtils(object):
             times = course['times'].split(",")
             for time in times:
                 fixed_time = time.lstrip()
-                help = Slot(course=courseid, type='support', sub_type=course['type'], is_weekly=True, times=fixed_time, location=course['location'])
+                help = Slot(course=courseid, type='support', sub_type=course['type'], is_weekly=True, time=fixed_time, location=course['location'])
                 db.session.add(help)
         for exam in res_exam['exams']:
-            exam = Exam(course=courseid, type='exams', sub_type=exam['type'], is_weekly=False, datetime=exam['datetime'], location=exam['location'])
+            exam = Slot(course=courseid, type='exams', sub_type=exam['type'], is_weekly=False, time=exam['datetime'], location=exam['location'])
             db.session.add(exam)
         for assignment in res_assignment['assignments']:
-            assignment = Assignment(course=courseid, type='assignments', sub_type=assignment['type'], is_weekly=False, datetime=assignment['datetime'], location=assignment['location'])
+            assignment = Slot(course=courseid, type='assignments', sub_type=assignment['type'], is_weekly=False, time=assignment['datetime'], location=assignment['location'])
             db.session.add(assignment)
         for meeting in res_meeting['meetings']:
-            classMeeting = ClassMeeting(course=courseid, type='meetings', sub_type=meeting['type'], is_weekly=True, times=meeting['times'], location=meeting['location'])
+            classMeeting = Slot(course=courseid, type='meetings', sub_type=meeting['type'], is_weekly=True, time=meeting['times'], location=meeting['location'])
             db.session.add(classMeeting)
         db.session.commit()
         res = getCourseInfo(courseid)

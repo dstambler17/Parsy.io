@@ -19,15 +19,15 @@ def getProfInfo(courseID, semester):
     sql = text(queryOne)
     courseInfo = db.engine.execute(sql)
     cur = courseInfo.fetchall()
-    print(cur)
+    #print(cur)
     cID = str(cur[0][0])
     cName = str(cur[0][1])
     profName = str(cur[0][2]).lstrip() + " " + str(cur[0][3])
     return cID, cName, profName
 
 def executeOfficeHoursQuery(helpType, courseID, semester):
-    print(courseID)
-    print(semester)
+    #print(courseID)
+    #print(semester)
     queryTAs = " select distinct CONCAT('TA', ' Office Hours') as Help, \
      TH.DayTime as DayTime, L.Building, L.Room \
     	FROM Course as C, TA_OH as TH, Location as L \
@@ -75,17 +75,17 @@ def getCourseIDSemester(param):
     cur = db.engine.execute(sql)
     resTuple = cur.fetchone()
     if resTuple is None:
-        print("ERROR IN GET COURSE ID SEM")
+        #print("ERROR IN GET COURSE ID SEM")
         raise NotFound
-    print(resTuple)
+    #print(resTuple)
     cNum = str(resTuple[0])
     Semester = str(resTuple[1])
     return cNum, Semester
 
 def getOHData(param):
-    print(param)
+    #print(param)
     param = param.lstrip().rstrip() #remove trailing and leading spaces
-    print(param)
+    #print(param)
     if "null" in param:
         raise NotFound
     #cursor = db.get_db().cursor()
@@ -96,15 +96,15 @@ def getOHData(param):
         semester = "Fall" + (param.split("Fall"))[1]
         courseID = (param.split("Fall"))[0]
     else:
-        print(param)
-        print("ERROR IN GET DATA OH")
+        #print(param)
+        #print("ERROR IN GET DATA OH")
         raise NotFound
-    print(semester)
-    print(courseID)
+    #print(semester)
+    #print(courseID)
     id, cName, prof = getProfInfo(courseID, semester)
-    print(id)
-    print(cName)
-    print(prof)
+    #print(id)
+    #print(cName)
+    #print(prof)
     courses = getcourses( courseID, semester)
     result = {"id": id, "name" : cName, "prof" : prof, "support" : courses}
     #cursor.close()
@@ -115,7 +115,7 @@ def getOHData(param):
 '''Below is some dummy data until we add the sql to
 pull exam info from datapipeline db'''
 def getExamData(courseID):
-    print("hi")
+    #print("hi")
 
     #engine = db.create_engine('mysql://root:Qazsewq1!@localhost/Parsy')
     #select distinct E.CSID, E.Date, E.Time, E.Name from Exam_Data as E where E.CSID = 'EN.601.421'
@@ -140,8 +140,8 @@ def getExamData(courseID):
         semester = "Fall" + (courseID.split("Fall"))[1]
         courseID = (courseID.split("Fall"))[0]
     else:
-        print(courseID)
-        print("ERROR IN GET DATA OH")
+        #print(courseID)
+        #print("ERROR IN GET DATA OH")
         raise NotFound
     sql = text(query)
     sql_loc = text(query_loc)
@@ -173,9 +173,9 @@ def getExamData(courseID):
                 Type = 'Midterm'
         #Type = exam[2]
         Time = Time.replace(' - ', '-')
-        print("Date: ", Date)
-        print("Time: ", Time)
-        print("Type: ", Type)
+        #print("Date: ", Date)
+        #print("Time: ", Time)
+        #print("Type: ", Type)
         resultExam = {"type": Type, "datetime": Date + Time, "location": exam_location}
         res_exam.append(resultExam)
 
@@ -232,8 +232,8 @@ def getAssignmentData(courseID):
         semester = "Fall" + (courseID.split("Fall"))[1]
         courseID = (courseID.split("Fall"))[0]
     else:
-        print(courseID)
-        print("ERROR IN GET DATA OH")
+        ###print(courseID)
+        #print("ERROR IN GET DATA OH")
         raise NotFound
     sql = text(query)
     sql_loc = text(query_loc)
@@ -258,8 +258,8 @@ def getAssignmentData(courseID):
         Time = hw_time
         Time = Time.replace(' - ', '-')
         #Type = exam[2]
-        print("Date: ", Date)
-        print("Name: ", Name)
+        #print("Date: ", Date)
+        #print("Name: ", Name)
         resultHW = {"type": 'Homework', "datetime": Date + Time, "location": hw_location}
         res_hw.append(resultHW)
 
@@ -308,8 +308,8 @@ def getClassMeetingData(courseID):
         semester = "Fall" + (courseID.split("Fall"))[1]
         courseID = (courseID.split("Fall"))[0]
     else:
-        print(courseID)
-        print("ERROR IN GET DATA OH")
+        #print(courseID)
+        #print("ERROR IN GET DATA OH")
         raise NotFound
     sql = text(query)
     results = db.engine.execute(sql)
@@ -319,7 +319,7 @@ def getClassMeetingData(courseID):
         Times = []
         Times.append(course[1])
         Times_temp = []
-        print("Times: ", Times)
+        #print("Times: ", Times)
         for time in Times:
             if ', ' in time:
                 time = time.split(', ')
@@ -329,46 +329,46 @@ def getClassMeetingData(courseID):
                 Times_temp.append(time)
         Times = Times_temp
         Times_temp = []
-        print("after comma: ", Times)
+        #print("after comma: ", Times)
         for time in Times:
-            print('time in loop: ', time)
+            #print('time in loop: ', time)
             if 'TTh ' in time:
                 temp = time[4:]
-                print('temp: ', temp)
+                #print('temp: ', temp)
                 t = 'Tuesday ' + temp
                 Times_temp.append(t)
                 t = 'Thursday ' + temp
                 Times_temp.append(t)
-                print("ttemp: ", Times_temp)
+                #print("ttemp: ", Times_temp)
             elif 'MWF ' in time:
                 temp = time[4:]
-                print('temp: ', temp)
+                #print('temp: ', temp)
                 t = 'Monday ' + temp
                 Times_temp.append(t)
                 t = 'Wednesday ' + temp
                 Times_temp.append(t)
                 t = 'Friday ' + temp
                 Times_temp.append(t)
-                print("ttemp: ", Times_temp)
+                #print("ttemp: ", Times_temp)
             elif 'MW ' in time:
-                print('I am in MW')
+                #print('I am in MW')
                 temp = time[3:]
-                print('temp: ', temp)
+                #print('temp: ', temp)
                 t = 'Monday ' + temp
                 Times_temp.append(t)
                 t = 'Wednesday ' + temp
                 Times_temp.append(t)
-                print("ttemp: ", Times_temp)
+                #print("ttemp: ", Times_temp)
             else:
                 Times_temp.append(time)
-        print("Times_Temp: ", Times_temp)
+        #print("Times_Temp: ", Times_temp)
         Times = Times_temp
-        print("New Times: ", Times)
+        #print("New Times: ", Times)
         LocID = course[2]
         Type = course[3]
-        print("time: ", Times)
-        print("Location: ", LocID)
-        print("Type: ", Type)
+        #print("time: ", Times)
+        #print("Location: ", LocID)
+        #print("Type: ", Type)
         for time in Times:
             if time[:3] in DOW.keys():
                 time = DOW[time[:3]] + time[3:]
