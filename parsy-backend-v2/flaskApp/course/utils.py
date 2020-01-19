@@ -1,7 +1,7 @@
 import sys
 from flaskApp import db
 #from flaskApp.course.reportbot import minibot
-from flaskApp.models import Calendar, User, Courseitem, HelpSession, Exam, ClassMeeting, Assignment, Report
+from flaskApp.models import Calendar, User, Courseitem, HelpSession, Exam, ClassMeeting, Assignment, Report, Slot
 from flaskApp.error.error_handlers import *
 from sqlalchemy import text
 from flaskApp.helpers import _asdict, getOHData, getExamData, getClassMeetingData, getAssignmentData
@@ -82,10 +82,10 @@ def getCourseInfo(courseid):
     course = Courseitem.query.filter_by(courseuuid=courseid).first()
     res = _asdict(course)
 
-    times = HelpSession.query.filter_by(course=courseid).all()
-    exams = Exam.query.filter_by(course=courseid).all()
-    classMeetings = ClassMeeting.query.filter_by(course=courseid).all()
-    assignments = Assignment.query.filter_by(course=courseid).all()
+    times = Slot.query.filter_by(course=courseid, type='support').all()
+    exams = Slot.query.filter_by(course=courseid, type='exams').all()
+    classMeetings = Slot.query.filter_by(course=courseid, type='meetings').all()
+    assignments = Slot.query.filter_by(course=courseid, type='assignments').all()
 
     res['support'] = [_asdict(time) for time in times]
     res['exam'] = [_asdict(exam) for exam in exams]
@@ -159,7 +159,7 @@ class DbCourseitemUtils(object):
         username = request_body['username']
         check_user(username)
         caluuid = str(uuid.uuid4())
-        calendar = Calendar(calID=caluuid, user=username)
+        calendar = Calendar(calID=caluuid, user=username, school_id=1)
         db.session.add(calendar)
         id = calendar.calID
         db.session.commit()
@@ -171,10 +171,10 @@ class DbCourseitemUtils(object):
         courses = Courseitem.query.filter_by(calender=cal_id).all()
         res['content'] = [_asdict(course) for course in courses]
         for course in res['content']:
-            times = HelpSession.query.filter_by(course=course['courseuuid']).all()
-            exams = Exam.query.filter_by(course=course['courseuuid']).all()
-            assignments = Assignment.query.filter_by(course=course['courseuuid']).all()
-            classMeetings = ClassMeeting.query.filter_by(course=course['courseuuid']).all()
+            times = Slot.query.filter_by(course=course['courseuuid'], type='support').all()
+            exams = Slot.query.filter_by(course=course['courseuuid'], type='exams').all()
+            assignments = Slot.query.filter_by(course=course['courseuuid'], type='assignments').all()
+            classMeetings = Slot.query.filter_by(course=course['courseuuid'], type='meetings').all()
             course['support'] = [_asdict(time) for time in times]
             course['exam'] = [_asdict(exam) for exam in exams]
             course['class_meeting'] = [_asdict(meeting) for meeting in classMeetings]
@@ -187,10 +187,10 @@ class DbCourseitemUtils(object):
         courses = Courseitem.query.filter_by(calender=cal_id).all()
         for course in courses:
             course_id = course.courseuuid
-            times = HelpSession.query.filter_by(course=course_id).all()
-            exams = Exam.query.filter_by(course=course_id).all()
-            meetings = ClassMeeting.query.filter_by(course=course_id).all()
-            assignments = Assignment.query.filter_by(course=courseid).all()
+            times = Slot.query.filter_by(course=course_id, type='support').all()
+            exams = Slot.query.filter_by(course=course_id, type='exams').all()
+            meetings = Slot.query.filter_by(course=course_id, type='meetings').all()
+            assignments = Slot.query.filter_by(course=course_id, type='assignments').all()
             for time in times:
                 db.session.delete(time)
             for exam in exams:
@@ -207,10 +207,10 @@ class DbCourseitemUtils(object):
         cal = check_cal(cal_ID)
         course = check_course(cal_ID, course_ID)
         specific_course_id = course.courseuuid
-        times = HelpSession.query.filter_by(course=specific_course_id).all()
-        exams = Exam.query.filter_by(course=specific_course_id).all()
-        assignments = Assignment.query.filter_by(course=specific_course_id).all()
-        meetings = ClassMeeting.query.filter_by(course=specific_course_id).all()
+        times = Slot.query.filter_by(course=specific_course_id, type='support').all()
+        exams = Slot.query.filter_by(course=specific_course_id, type='exams').all()
+        meetings = Slot.query.filter_by(course=specific_course_id, type='meetings').all()
+        assignments = Slot.query.filter_by(course=specific_course_id, type='assignments').all()
         for time in times:
             db.session.delete(time)
         for exam in exams:
@@ -240,16 +240,16 @@ class DbCourseitemUtils(object):
             times = course['times'].split(",")
             for time in times:
                 fixed_time = time.lstrip()
-                help = HelpSession(course=courseid, type=course['type'], times=fixed_time, location=course['location'])
+                help = Slot(course=courseid, type='support', sub_type=course['type'], is_weekly=True, times=fixed_time, location=course['location'])
                 db.session.add(help)
         for exam in res_exam['exams']:
-            exam = Exam(course=courseid, type=exam['type'], datetime=exam['datetime'], location=exam['location'])
+            exam = Exam(course=courseid, type='exams', sub_type=exam['type'], is_weekly=False, datetime=exam['datetime'], location=exam['location'])
             db.session.add(exam)
         for assignment in res_assignment['assignments']:
-            assignment = Assignment(course=courseid, type=assignment['type'], datetime=assignment['datetime'], location=assignment['location'])
+            assignment = Assignment(course=courseid, type='assignments', sub_type=assignment['type'], is_weekly=False, datetime=assignment['datetime'], location=assignment['location'])
             db.session.add(assignment)
         for meeting in res_meeting['meetings']:
-            classMeeting = ClassMeeting(course=courseid, type=meeting['type'], times=meeting['times'], location=meeting['location'])
+            classMeeting = ClassMeeting(course=courseid, type='meetings', sub_type=meeting['type'], is_weekly=True, times=meeting['times'], location=meeting['location'])
             db.session.add(classMeeting)
         db.session.commit()
         res = getCourseInfo(courseid)
